@@ -1,121 +1,2448 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تسجيل الدخول</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.1);
-    }
+<title>بطاقات العملاء المميزين</title>
 
-    input, button {
-      width: 100%;
-      padding: 13px;
-      margin-top: 10px;
-      box-sizing: border-box;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    button {
-      background: #111;
-      color: white;
-      cursor: pointer;
-    }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-    #result {
-      margin-top: 15px;
-      text-align: center;
-    }
-  </style>
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial,Tahoma,sans-serif;
+background:#f4f1eb;
+color:#222;
+}
+
+button,input,select,textarea{
+font-family:inherit;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.hidden{
+display:none!important;
+}
+
+/* LOGIN */
+
+.login-page{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.login-box{
+width:100%;
+max-width:420px;
+background:white;
+padding:35px;
+border-radius:20px;
+box-shadow:0 10px 40px rgba(0,0,0,.08);
+}
+
+.logo{
+text-align:center;
+font-size:28px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.subtitle{
+text-align:center;
+color:#777;
+margin-bottom:25px;
+}
+
+/* INPUTS */
+
+label{
+display:block;
+margin-bottom:5px;
+font-weight:bold;
+}
+
+input,select,textarea{
+width:100%;
+padding:13px;
+border:1px solid #ddd;
+border-radius:10px;
+background:white;
+font-size:15px;
+margin-bottom:15px;
+}
+
+textarea{
+min-height:90px;
+resize:vertical;
+}
+
+button{
+border:0;
+border-radius:10px;
+padding:13px 18px;
+cursor:pointer;
+font-size:15px;
+font-weight:bold;
+}
+
+.btn-primary{
+background:#191919;
+color:white;
+}
+
+.btn-secondary{
+background:#eee;
+color:#222;
+}
+
+.btn-danger{
+background:#c62828;
+color:white;
+}
+
+.btn-gold{
+background:#b08a45;
+color:white;
+}
+
+button:hover{
+opacity:.9;
+}
+
+/* HEADER */
+
+.header{
+background:#191919;
+color:white;
+border-radius:18px;
+padding:20px;
+margin-bottom:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px;
+}
+
+.header-title{
+font-size:24px;
+font-weight:bold;
+}
+
+.logout{
+background:#c62828;
+color:white;
+}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat{
+background:white;
+border-radius:16px;
+padding:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.stat-title{
+color:#777;
+font-size:14px;
+}
+
+.stat-number{
+font-size:30px;
+font-weight:bold;
+margin-top:8px;
+}
+
+/* SECTIONS */
+
+.section{
+background:white;
+border-radius:16px;
+padding:22px;
+margin-bottom:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.section h2{
+margin-top:0;
+}
+
+.grid-2{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.grid-3{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+}
+
+@media(max-width:800px){
+
+.stats{
+grid-template-columns:1fr 1fr;
+}
+
+.grid-2,
+.grid-3{
+grid-template-columns:1fr;
+}
+
+}
+
+/* TABLE */
+
+.table-wrapper{
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:right;
+white-space:nowrap;
+}
+
+th{
+background:#fafafa;
+}
+
+/* BADGES */
+
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+}
+
+.badge-success{
+background:#e4f6e9;
+color:#17763a;
+}
+
+.badge-warning{
+background:#fff2d8;
+color:#986600;
+}
+
+/* MESSAGE */
+
+.message{
+padding:12px;
+border-radius:10px;
+margin-bottom:15px;
+display:none;
+}
+
+.success{
+background:#e4f6e9;
+color:#17763a;
+}
+
+.error{
+background:#fde7e7;
+color:#a51d1d;
+}
+
+/* CUSTOMER PAGE */
+
+.customer-page{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.customer-card{
+width:100%;
+max-width:480px;
+background:white;
+border-radius:25px;
+padding:30px;
+text-align:center;
+box-shadow:0 10px 40px rgba(0,0,0,.08);
+}
+
+.customer-name{
+font-size:30px;
+font-weight:bold;
+margin:10px 0;
+}
+
+.progress-box{
+margin:30px 0;
+}
+
+.progress-track{
+height:18px;
+background:#eee;
+border-radius:20px;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+background:#b08a45;
+border-radius:20px;
+transition:.4s;
+}
+
+.progress-text{
+font-size:18px;
+font-weight:bold;
+margin-top:12px;
+}
+
+.reward{
+padding:15px;
+border-radius:15px;
+background:#fff3d7;
+color:#825d13;
+font-weight:bold;
+margin-top:20px;
+}
+
+.qr-box{
+display:flex;
+justify-content:center;
+margin:15px 0;
+}
+
+.small{
+font-size:13px;
+color:#777;
+}
+
+.actions{
+display:flex;
+gap:7px;
+flex-wrap:wrap;
+}
+
+.actions button{
+padding:8px 12px;
+font-size:13px;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<div class="box">
 
-  <h2>بطاقات العملاء المميزين</h2>
-  <p>تسجيل دخول الإدارة</p>
+<!-- ================================================= -->
+<!-- CUSTOMER PAGE -->
+<!-- ================================================= -->
 
-  <input id="email" type="email" placeholder="الإيميل">
+<div id="customerPage" class="customer-page hidden">
 
-  <input id="password" type="password" placeholder="كلمة المرور">
+<div class="customer-card">
 
-  <button onclick="login()">دخول</button>
+<div class="logo">
+بطاقات العملاء المميزين
+</div>
 
-  <div id="result"></div>
+<div id="customerLoading">
+جاري تحميل البطاقة...
+</div>
+
+<div id="customerContent" class="hidden">
+
+<div class="small">
+أهلًا بك
+</div>
+
+<div id="customerName"
+class="customer-name">
+</div>
+
+<div class="progress-box">
+
+<div class="progress-track">
+
+<div id="progressFill"
+class="progress-fill"
+style="width:0%">
+</div>
 
 </div>
 
+<div id="progressText"
+class="progress-text">
+</div>
+
+</div>
+
+<div id="rewardBox"
+class="reward hidden">
+🎁 المناسبة القادمة مجانية
+</div>
+
+<div class="small">
+عدد المناسبات المسجلة:
+<strong id="totalEvents"></strong>
+</div>
+
+</div>
+
+<div id="customerError"
+class="message error">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- LOGIN -->
+<!-- ================================================= -->
+
+<div id="loginPage"
+class="login-page hidden">
+
+<div class="login-box">
+
+<div class="logo">
+بطاقات العملاء المميزين
+</div>
+
+<div class="subtitle">
+تسجيل دخول الإدارة
+</div>
+
+<div id="loginMessage"
+class="message">
+</div>
+
+<label>
+الإيميل
+</label>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="الإيميل">
+
+<label>
+كلمة المرور
+</label>
+
+<input
+id="loginPassword"
+type="password"
+placeholder="كلمة المرور">
+
+<button
+class="btn-primary"
+style="width:100%"
+onclick="login()">
+
+دخول
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- ADMIN -->
+<!-- ================================================= -->
+
+<div id="adminPage"
+class="hidden">
+
+<div class="container">
+
+<div class="header">
+
+<div>
+
+<div class="header-title">
+لوحة إدارة بطاقات العملاء
+</div>
+
+<div style="color:#bbb;margin-top:5px">
+نظام الولاء
+</div>
+
+</div>
+
+<button
+class="logout"
+onclick="logout()">
+
+تسجيل الخروج
+
+</button>
+
+</div>
+
+
+<div id="adminMessage"
+class="message">
+</div>
+
+
+<!-- STATS -->
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="stat-title">
+العملاء
+</div>
+
+<div
+id="statCustomers"
+class="stat-number">
+0
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-title">
+البطاقات
+</div>
+
+<div
+id="statCards"
+class="stat-number">
+0
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-title">
+المناسبات
+</div>
+
+<div
+id="statEvents"
+class="stat-number">
+0
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-title">
+المكافآت
+</div>
+
+<div
+id="statRewards"
+class="stat-number">
+0
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ADD CUSTOMER -->
+
+<div class="section">
+
+<h2>
+إضافة عميل جديد
+</h2>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+اسم العميل
+</label>
+
+<input
+id="customerNameInput"
+placeholder="مثال: محمد أحمد">
+
+</div>
+
+
+<div>
+
+<label>
+رقم الجوال
+</label>
+
+<input
+id="customerPhoneInput"
+placeholder="05xxxxxxxx">
+
+</div>
+
+</div>
+
+
+<label>
+ملاحظات
+</label>
+
+<textarea
+id="customerNotesInput"
+placeholder="ملاحظات اختيارية">
+</textarea>
+
+
+<button
+class="btn-primary"
+onclick="addCustomer()">
+
+إضافة العميل
+
+</button>
+
+</div>
+
+
+<!-- ADD CARD -->
+
+<div class="section">
+
+<h2>
+إصدار بطاقة جديدة
+</h2>
+
+<div class="grid-3">
+
+<div>
+
+<label>
+العميل
+</label>
+
+<select id="cardCustomerSelect">
+<option value="">
+اختر العميل
+</option>
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+رقم البطاقة
+</label>
+
+<input
+id="cardNumberInput"
+placeholder="SF-0001">
+
+</div>
+
+
+<div>
+
+<label>
+PIN البطاقة
+</label>
+
+<input
+id="cardPinInput"
+maxlength="6"
+placeholder="مثال: 4821">
+
+</div>
+
+</div>
+
+
+<button
+class="btn-gold"
+onclick="addCard()">
+
+إصدار البطاقة
+
+</button>
+
+</div>
+
+
+<!-- ADD EVENT -->
+
+<div class="section">
+
+<h2>
+تسجيل مناسبة
+</h2>
+
+<div id="freeNotice"
+class="reward hidden">
+🎁 هذا العميل مستحق للمناسبة المجانية القادمة.
+</div>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+العميل
+</label>
+
+<select
+id="eventCustomerSelect"
+onchange="checkFreeEvent()">
+
+<option value="">
+اختر العميل
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+التاريخ
+</label>
+
+<input
+id="eventDateInput"
+type="date">
+
+</div>
+
+</div>
+
+
+<div class="grid-3">
+
+<div>
+
+<label>
+عدد الضيوف
+</label>
+
+<input
+id="eventGuestsInput"
+type="number"
+placeholder="100">
+
+</div>
+
+
+<div>
+
+<label>
+نوع المناسبة
+</label>
+
+<input
+id="eventOccasionInput"
+placeholder="زواج / تخرج / ملكة">
+
+</div>
+
+
+<div>
+
+<label>
+الخدمة
+</label>
+
+<input
+id="eventServiceInput"
+placeholder="قهوجيين + تجهيز">
+
+</div>
+
+</div>
+
+
+<div class="grid-2">
+
+<div>
+
+<label>
+المبلغ
+</label>
+
+<input
+id="eventAmountInput"
+type="number"
+step="0.01"
+placeholder="1500">
+
+</div>
+
+
+<div>
+
+<label>
+الحالة
+</label>
+
+<select id="eventFreeSelect">
+
+<option value="paid">
+مدفوعة
+</option>
+
+<option value="free">
+مجانية
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<label>
+ملاحظات
+</label>
+
+<textarea
+id="eventNotesInput">
+</textarea>
+
+
+<button
+class="btn-primary"
+onclick="addEvent()">
+
+تسجيل المناسبة
+
+</button>
+
+</div>
+
+
+<!-- CUSTOMERS -->
+
+<div class="section">
+
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+
+<h2>
+العملاء
+</h2>
+
+<input
+id="customerSearch"
+placeholder="بحث بالاسم أو الجوال"
+oninput="renderCustomers()"
+style="max-width:300px;margin:0">
+
+</div>
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+الاسم
+</th>
+
+<th>
+الجوال
+</th>
+
+<th>
+المناسبات
+</th>
+
+<th>
+الحالة
+</th>
+
+<th>
+إجراء
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="customersTable">
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- CARDS -->
+
+<div class="section">
+
+<h2>
+البطاقات
+</h2>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+رقم البطاقة
+</th>
+
+<th>
+العميل
+</th>
+
+<th>
+PIN
+</th>
+
+<th>
+الحالة
+</th>
+
+<th>
+QR
+</th>
+
+<th>
+إجراء
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="cardsTable">
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- EVENTS -->
+
+<div class="section">
+
+<h2>
+سجل المناسبات
+</h2>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+العميل
+</th>
+
+<th>
+التاريخ
+</th>
+
+<th>
+المناسبة
+</th>
+
+<th>
+الضيوف
+</th>
+
+<th>
+الخدمة
+</th>
+
+<th>
+المبلغ
+</th>
+
+<th>
+الحالة
+</th>
+
+<th>
+إجراء
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="eventsTable">
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- QR MODAL -->
+<!-- ================================================= -->
+
+<div
+id="qrModal"
+class="hidden"
+style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+z-index:1000;
+">
+
+<div
+style="
+background:white;
+padding:25px;
+border-radius:20px;
+text-align:center;
+max-width:400px;
+width:100%;
+">
+
+<h2>
+QR البطاقة
+</h2>
+
+<div
+id="qrCode"
+class="qr-box">
+</div>
+
+<div
+id="qrCardNumber"
+style="font-weight:bold;margin:10px">
+</div>
+
+<div
+id="qrUrl"
+class="small"
+style="word-break:break-all">
+</div>
+
+<br>
+
+<button
+class="btn-secondary"
+onclick="closeQR()">
+
+إغلاق
+
+</button>
+
+</div>
+
+</div>
+
+
 <script>
 
+/* =================================================
+SUPABASE
+================================================= */
+
 const SUPABASE_URL =
-  "https://qqssbpvtgrcjvpxtjoex.supabase.co";
+"https://qqssbpvtgrcjvpxtjoex.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_YVAtP98AkFDl4DbyWs5YpQ_aAEVkmGo";
+"sb_publishable_YVAtP98AkFDl4DbyWs5YpQ_aAEVkmGo";
 
 const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
-async function login() {
 
-  const email =
-    document.getElementById("email").value.trim();
+/* =================================================
+STATE
+================================================= */
 
-  const password =
-    document.getElementById("password").value;
+let customers = [];
+let cards = [];
+let events = [];
 
-  const result =
-    document.getElementById("result");
 
-  result.textContent = "جاري تسجيل الدخول...";
+/* =================================================
+HELPERS
+================================================= */
 
-  const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
+function escapeHtml(value){
 
-  if (error) {
-
-    result.textContent =
-      "❌ " + error.message;
-
-    return;
-  }
-
-result.innerHTML = `
-  <h3>✅ تم تسجيل الدخول بنجاح</h3>
-  <p>أهلًا بك في لوحة الإدارة</p>
-  <button onclick="location.reload()">دخول للوحة التحكم</button>
-`;
+return String(value ?? "")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
 
 }
+
+
+function showMessage(id,text,type){
+
+const el =
+document.getElementById(id);
+
+el.textContent = text;
+
+el.className =
+"message " + type;
+
+el.style.display = "block";
+
+setTimeout(()=>{
+
+el.style.display="none";
+
+},4000);
+
+}
+
+
+/* =================================================
+START
+================================================= */
+
+async function start(){
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+const cardToken =
+params.get("card");
+
+
+/* CUSTOMER */
+
+if(cardToken){
+
+document.getElementById("customerPage")
+.classList.remove("hidden");
+
+await loadCustomerCard(cardToken);
+
+return;
+
+}
+
+
+/* ADMIN */
+
+const {data} =
+await supabaseClient.auth.getSession();
+
+if(data.session){
+
+showAdmin();
+
+}else{
+
+document.getElementById("loginPage")
+.classList.remove("hidden");
+
+}
+
+}
+
+
+/* =================================================
+CUSTOMER CARD
+================================================= */
+
+async function loadCustomerCard(token){
+
+const {data,error} =
+await supabaseClient.rpc(
+"get_customer_card",
+{
+p_token:token
+}
+);
+
+
+document.getElementById("customerLoading")
+.classList.add("hidden");
+
+
+if(error){
+
+showCustomerError(error.message);
+
+return;
+
+}
+
+
+if(!data || !data.success){
+
+showCustomerError(
+data?.message ||
+"البطاقة غير موجودة"
+);
+
+return;
+
+}
+
+
+document.getElementById("customerContent")
+.classList.remove("hidden");
+
+
+document.getElementById("customerName")
+.textContent =
+data.name || "عميلنا العزيز";
+
+
+const progress =
+Number(data.progress || 0);
+
+
+const percentage =
+Math.min(
+(progress / 5) * 100,
+100
+);
+
+
+document.getElementById("progressFill")
+.style.width =
+percentage + "%";
+
+
+document.getElementById("progressText")
+.textContent =
+`${progress} / 5 مناسبات`;
+
+
+document.getElementById("totalEvents")
+.textContent =
+data.events_total || 0;
+
+
+if(data.next_free){
+
+document.getElementById("rewardBox")
+.classList.remove("hidden");
+
+}
+
+}
+
+
+function showCustomerError(message){
+
+const el =
+document.getElementById("customerError");
+
+el.textContent = message;
+
+el.style.display = "block";
+
+}
+
+
+/* =================================================
+LOGIN
+================================================= */
+
+async function login(){
+
+const email =
+document.getElementById("loginEmail")
+.value
+.trim();
+
+const password =
+document.getElementById("loginPassword")
+.value;
+
+
+if(!email || !password){
+
+showMessage(
+"loginMessage",
+"اكتب الإيميل وكلمة المرور",
+"error"
+);
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient.auth.signInWithPassword({
+
+email,
+password
+
+});
+
+
+if(error){
+
+showMessage(
+"loginMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+showAdmin();
+
+}
+
+
+/* =================================================
+ADMIN
+================================================= */
+
+function showAdmin(){
+
+document.getElementById("loginPage")
+.classList.add("hidden");
+
+document.getElementById("adminPage")
+.classList.remove("hidden");
+
+loadAll();
+
+}
+
+
+async function logout(){
+
+await supabaseClient.auth.signOut();
+
+location.href =
+location.pathname;
+
+}
+
+
+/* =================================================
+LOAD ALL
+================================================= */
+
+async function loadAll(){
+
+await Promise.all([
+loadCustomers(),
+loadCards(),
+loadEvents()
+]);
+
+updateStats();
+
+fillCustomerSelects();
+
+}
+
+
+/* =================================================
+CUSTOMERS
+================================================= */
+
+async function loadCustomers(){
+
+const {data,error} =
+await supabaseClient
+.from("customers")
+.select("*")
+.order("created_at",{ascending:false});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+customers =
+data || [];
+
+renderCustomers();
+
+}
+
+
+function renderCustomers(){
+
+const search =
+document.getElementById("customerSearch")
+.value
+.toLowerCase()
+.trim();
+
+
+const table =
+document.getElementById("customersTable");
+
+table.innerHTML = "";
+
+
+const filtered =
+customers.filter(c =>
+
+(c.name || "")
+.toLowerCase()
+.includes(search)
+
+||
+
+(c.phone || "")
+.toLowerCase()
+.includes(search)
+
+);
+
+
+filtered.forEach(customer => {
+
+const count =
+events.filter(
+e => e.customer_id === customer.id
+).length;
+
+
+const progress =
+count % 6;
+
+
+const shownProgress =
+progress === 0 && count > 0
+? 0
+: progress;
+
+
+const status =
+progress === 5
+? '<span class="badge badge-warning">المناسبة القادمة مجانية</span>'
+: `${shownProgress} / 5`;
+
+
+table.innerHTML += `
+
+<tr>
+
+<td>
+${escapeHtml(customer.name)}
+</td>
+
+<td>
+${escapeHtml(customer.phone || "-")}
+</td>
+
+<td>
+${count}
+</td>
+
+<td>
+${status}
+</td>
+
+<td>
+
+<div class="actions">
+
+<button
+class="btn-danger"
+onclick="deleteCustomer('${customer.id}')">
+
+حذف
+
+</button>
+
+</div>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+
+/* =================================================
+ADD CUSTOMER
+================================================= */
+
+async function addCustomer(){
+
+const name =
+document.getElementById("customerNameInput")
+.value
+.trim();
+
+const phone =
+document.getElementById("customerPhoneInput")
+.value
+.trim();
+
+const notes =
+document.getElementById("customerNotesInput")
+.value
+.trim();
+
+
+if(!name){
+
+showMessage(
+"adminMessage",
+"اكتب اسم العميل",
+"error"
+);
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.from("customers")
+.insert({
+name,
+phone,
+notes
+});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+document.getElementById("customerNameInput")
+.value="";
+
+document.getElementById("customerPhoneInput")
+.value="";
+
+document.getElementById("customerNotesInput")
+.value="";
+
+
+showMessage(
+"adminMessage",
+"تمت إضافة العميل",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+DELETE CUSTOMER
+================================================= */
+
+async function deleteCustomer(id){
+
+if(!confirm(
+"هل أنت متأكد؟ سيتم حذف العميل ومناسباته المرتبطة به."
+)) return;
+
+
+const {error} =
+await supabaseClient
+.from("customers")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+showMessage(
+"adminMessage",
+"تم حذف العميل",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+SELECTS
+================================================= */
+
+function fillCustomerSelects(){
+
+const selects = [
+
+document.getElementById("cardCustomerSelect"),
+
+document.getElementById("eventCustomerSelect")
+
+];
+
+
+selects.forEach(select => {
+
+const current =
+select.value;
+
+
+select.innerHTML =
+'<option value="">اختر العميل</option>';
+
+
+customers.forEach(c => {
+
+select.innerHTML += `
+
+<option value="${c.id}">
+${escapeHtml(c.name)}
+</option>
+
+`;
+
+});
+
+
+if(current){
+
+select.value=current;
+
+}
+
+});
+
+}
+
+
+/* =================================================
+CARDS
+================================================= */
+
+async function loadCards(){
+
+const {data,error} =
+await supabaseClient
+.from("cards")
+.select("*")
+.order("created_at",{ascending:false});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+cards =
+data || [];
+
+renderCards();
+
+}
+
+
+function renderCards(){
+
+const table =
+document.getElementById("cardsTable");
+
+table.innerHTML="";
+
+
+cards.forEach(card => {
+
+const customer =
+customers.find(
+c => c.id === card.customer_id
+);
+
+
+table.innerHTML += `
+
+<tr>
+
+<td>
+${escapeHtml(card.card_number)}
+</td>
+
+<td>
+${escapeHtml(customer?.name || "-")}
+</td>
+
+<td>
+${escapeHtml(card.pin || "-")}
+</td>
+
+<td>
+${card.active
+? '<span class="badge badge-success">فعالة</span>'
+: '<span class="badge">موقوفة</span>'
+}
+</td>
+
+<td>
+
+<button
+class="btn-gold"
+onclick="showQR('${card.token}','${escapeHtml(card.card_number)}')">
+
+عرض QR
+
+</button>
+
+</td>
+
+<td>
+
+<button
+class="btn-danger"
+onclick="deleteCard('${card.id}')">
+
+حذف
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+
+/* =================================================
+ADD CARD
+================================================= */
+
+async function addCard(){
+
+const customerId =
+document.getElementById("cardCustomerSelect")
+.value;
+
+const cardNumber =
+document.getElementById("cardNumberInput")
+.value
+.trim();
+
+const pin =
+document.getElementById("cardPinInput")
+.value
+.trim();
+
+
+if(!customerId ||
+!cardNumber ||
+!pin){
+
+showMessage(
+"adminMessage",
+"اختر العميل واكتب رقم البطاقة والـPIN",
+"error"
+);
+
+return;
+
+}
+
+
+if(pin.length < 4){
+
+showMessage(
+"adminMessage",
+"الـPIN يجب أن يكون 4 أرقام على الأقل",
+"error"
+);
+
+return;
+
+}
+
+
+const token =
+crypto.randomUUID();
+
+
+const {error} =
+await supabaseClient
+.from("cards")
+.insert({
+
+customer_id:customerId,
+
+card_number:cardNumber,
+
+pin:pin,
+
+token:token,
+
+active:true
+
+});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+document.getElementById("cardNumberInput")
+.value="";
+
+document.getElementById("cardPinInput")
+.value="";
+
+
+showMessage(
+"adminMessage",
+"تم إصدار البطاقة",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+DELETE CARD
+================================================= */
+
+async function deleteCard(id){
+
+if(!confirm(
+"هل تريد حذف هذه البطاقة؟"
+)) return;
+
+
+const {error} =
+await supabaseClient
+.from("cards")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+showMessage(
+"adminMessage",
+"تم حذف البطاقة",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+QR
+================================================= */
+
+function showQR(token,cardNumber){
+
+const baseUrl =
+window.location.origin +
+window.location.pathname;
+
+
+const url =
+`${baseUrl}?card=${encodeURIComponent(token)}`;
+
+
+document.getElementById("qrModal")
+.classList.remove("hidden");
+
+document.getElementById("qrCode")
+.innerHTML="";
+
+
+new QRCode(
+document.getElementById("qrCode"),
+{
+text:url,
+width:220,
+height:220
+}
+);
+
+
+document.getElementById("qrCardNumber")
+textContent =
+"البطاقة: " + cardNumber;
+
+
+document.getElementById("qrUrl")
+textContent = url;
+
+}
+
+
+function closeQR(){
+
+document.getElementById("qrModal")
+.classList.add("hidden");
+
+}
+
+
+/* =================================================
+EVENTS
+================================================= */
+
+async function loadEvents(){
+
+const {data,error} =
+await supabaseClient
+.from("events")
+.select("*")
+.order("event_date",{ascending:false});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+events =
+data || [];
+
+renderEvents();
+
+}
+
+
+function renderEvents(){
+
+const table =
+document.getElementById("eventsTable");
+
+table.innerHTML="";
+
+
+events.forEach(event => {
+
+const customer =
+customers.find(
+c => c.id === event.customer_id
+);
+
+
+const isFree =
+Number(event.amount || 0) === 0;
+
+
+table.innerHTML += `
+
+<tr>
+
+<td>
+${escapeHtml(customer?.name || "-")}
+</td>
+
+<td>
+${escapeHtml(event.event_date || "-")}
+</td>
+
+<td>
+${escapeHtml(event.occasion || "-")}
+</td>
+
+<td>
+${event.guests || "-"}
+</td>
+
+<td>
+${escapeHtml(event.service || "-")}
+</td>
+
+<td>
+${isFree ? "مجاني" : (event.amount ?? "-") + " ريال"}
+</td>
+
+<td>
+
+${isFree
+
+? '<span class="badge badge-success">مجانية</span>'
+
+: '<span class="badge">مدفوعة</span>'
+
+}
+
+</td>
+
+<td>
+
+<button
+class="btn-danger"
+onclick="deleteEvent('${event.id}')">
+
+حذف
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+
+/* =================================================
+CHECK FREE
+================================================= */
+
+function checkFreeEvent(){
+
+const customerId =
+document.getElementById("eventCustomerSelect")
+.value;
+
+
+const notice =
+document.getElementById("freeNotice");
+
+const freeSelect =
+document.getElementById("eventFreeSelect");
+
+const amountInput =
+document.getElementById("eventAmountInput");
+
+
+if(!customerId){
+
+notice.classList.add("hidden");
+
+return;
+
+}
+
+
+const count =
+events.filter(
+e => e.customer_id === customerId
+).length;
+
+
+const cycle =
+count % 6;
+
+
+if(cycle === 5){
+
+notice.classList.remove("hidden");
+
+freeSelect.value="free";
+
+amountInput.value="0";
+
+}else{
+
+notice.classList.add("hidden");
+
+freeSelect.value="paid";
+
+}
+
+}
+
+
+/* =================================================
+ADD EVENT
+================================================= */
+
+async function addEvent(){
+
+const customerId =
+document.getElementById("eventCustomerSelect")
+.value;
+
+const date =
+document.getElementById("eventDateInput")
+.value;
+
+const guests =
+document.getElementById("eventGuestsInput")
+.value;
+
+const occasion =
+document.getElementById("eventOccasionInput")
+.value
+.trim();
+
+const service =
+document.getElementById("eventServiceInput")
+.value
+.trim();
+
+const amount =
+document.getElementById("eventAmountInput")
+.value;
+
+const freeStatus =
+document.getElementById("eventFreeSelect")
+.value;
+
+const notes =
+document.getElementById("eventNotesInput")
+.value
+.trim();
+
+
+if(!customerId || !date){
+
+showMessage(
+"adminMessage",
+"اختر العميل والتاريخ",
+"error"
+);
+
+return;
+
+}
+
+
+const finalAmount =
+freeStatus === "free"
+? 0
+: Number(amount || 0);
+
+
+const {error} =
+await supabaseClient
+.from("events")
+.insert({
+
+customer_id:customerId,
+
+event_date:date,
+
+guests:guests
+? Number(guests)
+:null,
+
+occasion,
+
+service,
+
+amount:finalAmount,
+
+notes
+
+});
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+document.getElementById("eventDateInput")
+.value="";
+
+document.getElementById("eventGuestsInput")
+.value="";
+
+document.getElementById("eventOccasionInput")
+.value="";
+
+document.getElementById("eventServiceInput")
+.value="";
+
+document.getElementById("eventAmountInput")
+.value="";
+
+document.getElementById("eventNotesInput")
+.value="";
+
+
+showMessage(
+"adminMessage",
+"تم تسجيل المناسبة",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+DELETE EVENT
+================================================= */
+
+async function deleteEvent(id){
+
+if(!confirm(
+"هل تريد حذف هذه المناسبة؟"
+)) return;
+
+
+const {error} =
+await supabaseClient
+.from("events")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+showMessage(
+"adminMessage",
+"تم حذف المناسبة",
+"success"
+);
+
+
+await loadAll();
+
+}
+
+
+/* =================================================
+STATS
+================================================= */
+
+function updateStats(){
+
+document.getElementById("statCustomers")
+.textContent =
+customers.length;
+
+
+document.getElementById("statCards")
+.textContent =
+cards.length;
+
+
+document.getElementById("statEvents")
+.textContent =
+events.length;
+
+
+const rewards =
+events.filter(
+e => Number(e.amount || 0) === 0
+).length;
+
+
+document.getElementById("statRewards")
+.textContent =
+rewards;
+
+}
+
+
+/* =================================================
+AUTH LISTENER
+================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+(event,session)=>{
+
+if(event === "SIGNED_OUT"){
+
+document.getElementById("adminPage")
+.classList.add("hidden");
+
+document.getElementById("loginPage")
+.classList.remove("hidden");
+
+}
+
+});
+
+
+/* =================================================
+RUN
+================================================= */
+
+start();
 
 </script>
 
 </body>
+
 </html>
