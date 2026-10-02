@@ -1,1 +1,852 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بطاقات العملاء المميزين</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 25px;
+    }
+
+    .login-box {
+      max-width: 420px;
+      margin: 80px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.08);
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+    }
+
+    button {
+      background: #111;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: .9;
+    }
+
+    .logout {
+      width: auto;
+      float: left;
+      background: #b00020;
+      padding: 9px 18px;
+    }
+
+    .dashboard {
+      display: none;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .stat {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.06);
+    }
+
+    .stat-number {
+      font-size: 30px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .section {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.05);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .success {
+      background: #e7f7ed;
+      color: #146c35;
+    }
+
+    .error {
+      background: #fde8e8;
+      color: #a61b1b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 12px 8px;
+      text-align: right;
+    }
+
+    th {
+      background: #fafafa;
+    }
+
+    @media (max-width: 650px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="login-box">
+    <h1>بطاقات العملاء المميزين</h1>
+    <p>تسجيل دخول الإدارة</p>
+
+    <div id="loginMessage" class="message"></div>
+
+    <label>الإيميل</label>
+    <input id="email" type="email" placeholder="admin@email.com">
+
+    <label>كلمة المرور</label>
+    <input id="password" type="password" placeholder="كلمة المرور">
+
+    <button onclick="login()">دخول</button>
+  </div>
+
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="dashboard">
+
+    <button class="logout" onclick="logout()">تسجيل الخروج</button>
+
+    <h1>لوحة التحكم</h1>
+    <p>إدارة بطاقات العملاء والمناسبات</p>
+
+    <div id="dashboardMessage" class="message"></div>
+
+    <!-- STATS -->
+    <div class="cards">
+
+      <div class="stat">
+        <div>عدد العملاء</div>
+        <div id="customerCount" class="stat-number">0</div>
+      </div>
+
+      <div class="stat">
+        <div>عدد البطاقات</div>
+        <div id="cardCount" class="stat-number">0</div>
+      </div>
+
+      <div class="stat">
+        <div>عدد المناسبات</div>
+        <div id="eventCount" class="stat-number">0</div>
+      </div>
+
+    </div>
+
+
+    <!-- ADD CUSTOMER -->
+    <div class="section">
+      <h2>إضافة عميل</h2>
+
+      <div class="row">
+        <div>
+          <label>اسم العميل</label>
+          <input id="customerName" type="text" placeholder="مثال: محمد أحمد">
+        </div>
+
+        <div>
+          <label>رقم الجوال</label>
+          <input id="customerPhone" type="text" placeholder="05xxxxxxxx">
+        </div>
+      </div>
+
+      <label>ملاحظات</label>
+      <textarea id="customerNotes" placeholder="ملاحظات اختيارية"></textarea>
+
+      <button onclick="addCustomer()">إضافة العميل</button>
+    </div>
+
+
+    <!-- ADD CARD -->
+    <div class="section">
+      <h2>إضافة بطاقة للعميل</h2>
+
+      <label>العميل</label>
+      <select id="cardCustomer"></select>
+
+      <label>رقم البطاقة</label>
+      <input id="cardNumber" type="text" placeholder="مثال: SF-0001">
+
+      <button onclick="addCard()">تسجيل البطاقة</button>
+    </div>
+
+
+    <!-- ADD EVENT -->
+    <div class="section">
+      <h2>تسجيل مناسبة</h2>
+
+      <label>العميل</label>
+      <select id="eventCustomer"></select>
+
+      <div class="row">
+
+        <div>
+          <label>تاريخ المناسبة</label>
+          <input id="eventDate" type="date">
+        </div>
+
+        <div>
+          <label>عدد الضيوف</label>
+          <input id="eventGuests" type="number" placeholder="مثال: 100">
+        </div>
+
+      </div>
+
+      <label>نوع المناسبة</label>
+      <input id="eventOccasion" type="text" placeholder="زواج، تخرج، ملكة...">
+
+      <label>الخدمة</label>
+      <input id="eventService" type="text" placeholder="مثال: 3 قهوجيين + تجهيز">
+
+      <label>المبلغ</label>
+      <input id="eventAmount" type="number" step="0.01" placeholder="مثال: 1500">
+
+      <label>ملاحظات</label>
+      <textarea id="eventNotes"></textarea>
+
+      <button onclick="addEvent()">تسجيل المناسبة</button>
+    </div>
+
+
+    <!-- CUSTOMERS -->
+    <div class="section">
+      <h2>العملاء</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الجوال</th>
+            <th>عدد المناسبات</th>
+          </tr>
+        </thead>
+
+        <tbody id="customersTable">
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- EVENTS -->
+    <div class="section">
+      <h2>آخر المناسبات</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>العميل</th>
+            <th>التاريخ</th>
+            <th>المناسبة</th>
+            <th>الضيوف</th>
+            <th>المبلغ</th>
+          </tr>
+        </thead>
+
+        <tbody id="eventsTable">
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://qqssbpvtgrcjvpxjoex.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_YVAtP98AkFDl4DbyWs5YpQ_aAEVkmGo";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+// =========================
+// MESSAGE
+// =========================
+
+function showMessage(elementId, message, type) {
+
+  const element = document.getElementById(elementId);
+
+  element.textContent = message;
+
+  element.className = "message " + type;
+
+  element.style.display = "block";
+
+  setTimeout(() => {
+    element.style.display = "none";
+  }, 4000);
+}
+
+
+// =========================
+// LOGIN
+// =========================
+
+async function login() {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  if (!email || !password) {
+
+    showMessage(
+      "loginMessage",
+      "اكتب الإيميل وكلمة المرور",
+      "error"
+    );
+
+    return;
+  }
+
+  const { error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if (error) {
+
+    showMessage(
+      "loginMessage",
+      "الإيميل أو كلمة المرور غير صحيحة",
+      "error"
+    );
+
+    return;
+  }
+
+  showDashboard();
+}
+
+
+// =========================
+// LOGOUT
+// =========================
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  document.getElementById("dashboard").style.display = "none";
+
+  document.getElementById("loginBox").style.display = "block";
+}
+
+
+// =========================
+// SHOW DASHBOARD
+// =========================
+
+async function showDashboard() {
+
+  document.getElementById("loginBox").style.display = "none";
+
+  document.getElementById("dashboard").style.display = "block";
+
+  await loadDashboard();
+}
+
+
+// =========================
+// LOAD DASHBOARD
+// =========================
+
+async function loadDashboard() {
+
+  await loadStats();
+
+  await loadCustomers();
+
+  await loadEvents();
+}
+
+
+// =========================
+// STATS
+// =========================
+
+async function loadStats() {
+
+  const customers =
+    await supabaseClient
+      .from("customers")
+      .select("*", { count: "exact", head: true });
+
+  const cards =
+    await supabaseClient
+      .from("cards")
+      .select("*", { count: "exact", head: true });
+
+  const events =
+    await supabaseClient
+      .from("events")
+      .select("*", { count: "exact", head: true });
+
+  document.getElementById("customerCount").textContent =
+    customers.count || 0;
+
+  document.getElementById("cardCount").textContent =
+    cards.count || 0;
+
+  document.getElementById("eventCount").textContent =
+    events.count || 0;
+}
+
+
+// =========================
+// LOAD CUSTOMERS
+// =========================
+
+async function loadCustomers() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("customers")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+  if (error) {
+
+    showMessage(
+      "dashboardMessage",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+  const customerSelect =
+    document.getElementById("cardCustomer");
+
+  const eventSelect =
+    document.getElementById("eventCustomer");
+
+  const table =
+    document.getElementById("customersTable");
+
+  customerSelect.innerHTML =
+    '<option value="">اختر العميل</option>';
+
+  eventSelect.innerHTML =
+    '<option value="">اختر العميل</option>';
+
+  table.innerHTML = "";
+
+
+  for (const customer of data) {
+
+    customerSelect.innerHTML += `
+      <option value="${customer.id}">
+        ${escapeHtml(customer.name)}
+      </option>
+    `;
+
+    eventSelect.innerHTML += `
+      <option value="${customer.id}">
+        ${escapeHtml(customer.name)}
+      </option>
+    `;
+
+
+    const { count } =
+      await supabaseClient
+        .from("events")
+        .select("*", {
+          count: "exact",
+          head: true
+        })
+        .eq("customer_id", customer.id);
+
+
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(customer.name)}</td>
+        <td>${escapeHtml(customer.phone || "-")}</td>
+        <td>${count || 0} / 5</td>
+      </tr>
+    `;
+  }
+}
+
+
+// =========================
+// ADD CUSTOMER
+// =========================
+
+async function addCustomer() {
+
+  const name =
+    document.getElementById("customerName").value.trim();
+
+  const phone =
+    document.getElementById("customerPhone").value.trim();
+
+  const notes =
+    document.getElementById("customerNotes").value.trim();
+
+
+  if (!name) {
+
+    showMessage(
+      "dashboardMessage",
+      "اكتب اسم العميل",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("customers")
+      .insert({
+        name,
+        phone,
+        notes
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "dashboardMessage",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  document.getElementById("customerName").value = "";
+  document.getElementById("customerPhone").value = "";
+  document.getElementById("customerNotes").value = "";
+
+
+  showMessage(
+    "dashboardMessage",
+    "تمت إضافة العميل بنجاح",
+    "success"
+  );
+
+
+  await loadDashboard();
+}
+
+
+// =========================
+// ADD CARD
+// =========================
+
+async function addCard() {
+
+  const customerId =
+    document.getElementById("cardCustomer").value;
+
+  const cardNumber =
+    document.getElementById("cardNumber").value.trim();
+
+
+  if (!customerId || !cardNumber) {
+
+    showMessage(
+      "dashboardMessage",
+      "اختر العميل واكتب رقم البطاقة",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const token =
+    crypto.randomUUID();
+
+
+  const { error } =
+    await supabaseClient
+      .from("cards")
+      .insert({
+        customer_id: customerId,
+        card_number: cardNumber,
+        token: token,
+        active: true
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "dashboardMessage",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  document.getElementById("cardNumber").value = "";
+
+
+  showMessage(
+    "dashboardMessage",
+    "تم تسجيل البطاقة بنجاح",
+    "success"
+  );
+
+
+  await loadDashboard();
+}
+
+
+// =========================
+// ADD EVENT
+// =========================
+
+async function addEvent() {
+
+  const customerId =
+    document.getElementById("eventCustomer").value;
+
+  const eventDate =
+    document.getElementById("eventDate").value;
+
+  const guests =
+    document.getElementById("eventGuests").value;
+
+  const occasion =
+    document.getElementById("eventOccasion").value.trim();
+
+  const service =
+    document.getElementById("eventService").value.trim();
+
+  const amount =
+    document.getElementById("eventAmount").value;
+
+  const notes =
+    document.getElementById("eventNotes").value.trim();
+
+
+  if (!customerId || !eventDate) {
+
+    showMessage(
+      "dashboardMessage",
+      "اختر العميل وحدد تاريخ المناسبة",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("events")
+      .insert({
+        customer_id: customerId,
+        event_date: eventDate,
+        guests: guests ? Number(guests) : null,
+        occasion,
+        service,
+        amount: amount ? Number(amount) : null,
+        notes
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "dashboardMessage",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  document.getElementById("eventDate").value = "";
+  document.getElementById("eventGuests").value = "";
+  document.getElementById("eventOccasion").value = "";
+  document.getElementById("eventService").value = "";
+  document.getElementById("eventAmount").value = "";
+  document.getElementById("eventNotes").value = "";
+
+
+  showMessage(
+    "dashboardMessage",
+    "تم تسجيل المناسبة بنجاح",
+    "success"
+  );
+
+
+  await loadDashboard();
+}
+
+
+// =========================
+// LOAD EVENTS
+// =========================
+
+async function loadEvents() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("events")
+      .select(`
+        *,
+        customers (
+          name
+        )
+      `)
+      .order("event_date", { ascending: false })
+      .limit(50);
+
+
+  if (error) {
+
+    showMessage(
+      "dashboardMessage",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  const table =
+    document.getElementById("eventsTable");
+
+  table.innerHTML = "";
+
+
+  for (const event of data) {
+
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(event.customers?.name || "-")}</td>
+        <td>${escapeHtml(event.event_date || "-")}</td>
+        <td>${escapeHtml(event.occasion || "-")}</td>
+        <td>${event.guests || "-"}</td>
+        <td>${event.amount ?? "-"} ريال</td>
+      </tr>
+    `;
+  }
+}
+
+
+// =========================
+// SECURITY
+// =========================
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+// =========================
+// CHECK EXISTING LOGIN
+// =========================
+
+supabaseClient.auth.getSession()
+  .then(({ data }) => {
+
+    if (data.session) {
+      showDashboard();
+    }
+
+  });
+
+</script>
+
+</body>
+</html>
