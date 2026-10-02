@@ -1413,14 +1413,15 @@ LOAD ALL
 
 async function loadAll(){
 
-await Promise.all([
-loadCustomers(),
-loadCards(),
-loadEvents()
-]);
+await loadCustomers();
+await loadCards();
+await loadEvents();
+
+renderCustomers();
+renderCards();
+renderEvents();
 
 updateStats();
-
 fillCustomerSelects();
 
 }
