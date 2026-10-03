@@ -1538,7 +1538,17 @@ ${status}
 
 <td>
 
+<td>
+
 <div class="actions">
+
+<button
+class="btn-secondary"
+onclick="editCustomer('${customer.id}')">
+
+تعديل
+
+</button>
 
 <button
 class="btn-danger"
@@ -1640,7 +1650,75 @@ await loadAll();
 
 }
 
+async function editCustomer(id){
 
+const customer = customers.find(c => c.id === id);
+
+if(!customer) return;
+
+const name = prompt(
+"اسم العميل:",
+customer.name || ""
+);
+
+if(name === null) return;
+
+const phone = prompt(
+"رقم الجوال:",
+customer.phone || ""
+);
+
+if(phone === null) return;
+
+const notes = prompt(
+"ملاحظات:",
+customer.notes || ""
+);
+
+if(notes === null) return;
+
+if(!name.trim()){
+
+showMessage(
+"adminMessage",
+"اسم العميل مطلوب",
+"error"
+);
+
+return;
+
+}
+
+const {error} = await supabaseClient
+.from("customers")
+.update({
+name:name.trim(),
+phone:phone.trim(),
+notes:notes.trim()
+})
+.eq("id",id);
+
+if(error){
+
+showMessage(
+"adminMessage",
+error.message,
+"error"
+);
+
+return;
+
+}
+
+showMessage(
+"adminMessage",
+"تم تعديل بيانات العميل",
+"success"
+);
+
+await loadAll();
+
+}
 /* =================================================
 DELETE CUSTOMER
 ================================================= */
