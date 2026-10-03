@@ -413,7 +413,13 @@ class="progress-text">
 
 <div id="rewardBox"
 class="reward hidden">
-🎁 المناسبة القادمة مجانية
+🎁 مناسبتك المجانية<br>
+<span style="font-size:15px;font-weight:normal;">
+قهوجين شخصين + قهوة وشاهي مجانًا
+</span>
+<div class="small" style="margin-top:8px;">
+مع أي مناسبة — مقدمة من القهوة الملكية
+</div>
 </div>
 
 <div class="small">
@@ -1302,7 +1308,7 @@ document.getElementById("totalEvents")
 data.events_total || 0;
 
 
-if(data.next_free){
+if(data.next_free || progress >= 5){
 
 document.getElementById("rewardBox")
 .classList.remove("hidden");
