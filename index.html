@@ -8,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>بطاقات العملاء المميزين</title>
+<title>القهوة الملكية</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -377,7 +377,7 @@ font-size:13px;
 <div class="customer-card">
 
 <div class="logo">
-بطاقات العملاء المميزين
+القهوة الملكية
 </div>
 
 <div id="customerLoading">
@@ -442,7 +442,7 @@ class="login-page hidden">
 <div class="login-box">
 
 <div class="logo">
-بطاقات العملاء المميزين
+القهوة الملكية
 </div>
 
 <div class="subtitle">
@@ -1121,7 +1121,7 @@ SUPABASE
 ================================================= */
 
 const SUPABASE_URL =
-"https://qqssbpvtgrcjvpxtjoex.supabase.co";
+"https://qqssbpvtgrcjvpxjoex.supabase.co";
 
 const SUPABASE_KEY =
 "sb_publishable_YVAtP98AkFDl4DbyWs5YpQ_aAEVkmGo";
@@ -1898,13 +1898,25 @@ onclick="showQR('${card.token}','${escapeHtml(card.card_number)}')">
 
 <td>
 
-<button
-class="btn-danger"
-onclick="deleteCard('${card.id}')">
+<div class="actions">
 
-حذف
+<button
+class="${card.active ? 'btn-danger' : 'btn-secondary'}"
+onclick="toggleCard('${card.id}', ${card.active})">
+
+${card.active ? "إيقاف" : "تفعيل"}
 
 </button>
+
+<button
+class="btn-gold"
+onclick="replaceCard('${card.id}','${card.customer_id}')">
+
+استبدال
+
+</button>
+
+</div>
 
 </td>
 
@@ -2064,6 +2076,95 @@ await loadAll();
 
 
 /* =================================================
+CARD MANAGEMENT
+================================================= */
+
+async function toggleCard(id,currentStatus){
+
+  const {error} =
+    await supabaseClient
+      .from("cards")
+      .update({active:!currentStatus})
+      .eq("id",id);
+
+  if(error){
+    showMessage("adminMessage",error.message,"error");
+    return;
+  }
+
+  showMessage(
+    "adminMessage",
+    currentStatus ? "تم إيقاف البطاقة" : "تم تفعيل البطاقة",
+    "success"
+  );
+
+  await loadAll();
+}
+
+
+async function replaceCard(oldCardId,customerId){
+
+  const oldCard = cards.find(c => c.id === oldCardId);
+  if(!oldCard) return;
+
+  const newCardNumber = prompt("رقم البطاقة الجديدة:","");
+  if(newCardNumber === null || !newCardNumber.trim()) return;
+
+  const newPin = prompt("PIN البطاقة الجديدة:","");
+  if(newPin === null || !newPin.trim()) return;
+
+  if(newPin.trim().length < 4){
+    showMessage(
+      "adminMessage",
+      "الـPIN يجب أن يكون 4 أرقام على الأقل",
+      "error"
+    );
+    return;
+  }
+
+  const {error:oldError} =
+    await supabaseClient
+      .from("cards")
+      .update({active:false})
+      .eq("id",oldCardId);
+
+  if(oldError){
+    showMessage("adminMessage",oldError.message,"error");
+    return;
+  }
+
+  const {error:newError} =
+    await supabaseClient
+      .from("cards")
+      .insert({
+        customer_id:customerId,
+        card_number:newCardNumber.trim(),
+        pin:newPin.trim(),
+        token:crypto.randomUUID(),
+        active:true
+      });
+
+  if(newError){
+    await supabaseClient
+      .from("cards")
+      .update({active:oldCard.active})
+      .eq("id",oldCardId);
+
+    showMessage("adminMessage",newError.message,"error");
+    return;
+  }
+
+  showMessage(
+    "adminMessage",
+    "تم استبدال البطاقة بنجاح",
+    "success"
+  );
+
+  await loadAll();
+}
+
+
+/* =================================================
 QR
 ================================================= */
 
@@ -2099,8 +2200,7 @@ document.getElementById("qrCardNumber").textContent =
 "البطاقة: " + cardNumber;
 
 
-document.getElementById("qrUrl")
-textContent = url;
+document.getElementById("qrUrl").textContent = url;
 
 }
 
